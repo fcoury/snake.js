@@ -5,6 +5,8 @@ var plugins = [];
 var canvas = document.getElementById('canvas');
 var debug = document.getElementById('debug');
 var btn = document.getElementById('button');
+var pluginToggle = document.getElementById('pluginToggle');
+console.log('pluginToggle', pluginToggle);
 
 var ctx = canvas.getContext('2d');
 
@@ -59,6 +61,10 @@ function getRandomInt(min, max) {
 
 function Food(snake) {
   while (true) {
+    if (!snake.alive) {
+      break;
+    }
+
     this.x = getRandomInt(1, MAX_X - 1);
     this.y = getRandomInt(1, MAX_Y - 1);
 
@@ -105,9 +111,6 @@ function Snake() {
       return 'LEFT';
     }
   }
-
-  console.log('dir', this.direction, this.textDir());
-  // return;
 
   this.contains = function(x, y) {
     for (var i = 0; i < this.pixels.length; i++) {
@@ -191,6 +194,9 @@ function Snake() {
   }
 
   this.moveDown = function() {
+    if (this.direction == UP) {
+      return;
+    }
     this.direction = DOWN;
     downPressed = false;
   }
@@ -269,6 +275,11 @@ function startGame() {
   frameCnt = 0;
   frameLimit = 10;
   food = null;
+  plugins = [];
+
+  if (pluginToggle.checked) {
+    plugins.push(new AutoplayPlugin());
+  }
 
   snake = new Snake();
   draw();
@@ -317,23 +328,18 @@ var AutoplayPlugin = function() {
       }
     }
 
-    // if (sx == MAX_X - 1 && dir == RIGHT) {
-    //   projDir = DOWN;
-    // }
-    //
-    // if (sy == MAX_Y - 1 && dir == DOWN) {
-    //   projDir = LEFT;
-    // }
-    //
-    // if (sx == 0 && dir == LEFT) {
-    //   projDir = UP;
-    // }
-    //
-    // if (sy == 0 && dir == UP) {
-    //   projDir = RIGHT;
-    // }
-
+    var attempts = 0;
     while (true) {
+      attempts++;
+
+      if (attempts > 100) {
+        break;
+      }
+
+      if (!snake.alive) {
+        break;
+      }
+
       var px = sx;
       var py = sy;
 
@@ -353,7 +359,8 @@ var AutoplayPlugin = function() {
         px -= 1;
       }
 
-      console.log('px', px, 'py', py, 'contains', snake.contains(px, py));
+      console.log('px', px, 'py', py, 'contains', snake.contains(px, py),
+        'alive', snake.alive, 'attempts', attempts);
       if (!snake.contains(px, py)) {
         break;
       }
@@ -365,11 +372,8 @@ var AutoplayPlugin = function() {
     }
 
     snake.direction = projDir;
-    console.log('dx', dx, 'dy', dy, 'direction', snake.textDir());
   }
 };
-
-plugins.push(new AutoplayPlugin());
 
 btn.onclick = startGame;
 startGame();
