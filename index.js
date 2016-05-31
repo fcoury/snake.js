@@ -7,20 +7,26 @@
 
   var ctx = canvas.getContext('2d');
 
-  var PIXMUL = 8;
+  var PIXMUL = 16;
   var UP = 0;
   var RIGHT = 1;
   var DOWN = 2;
   var LEFT = 3;
   var MAX_X = (480) / PIXMUL;
   var MAX_Y = (320) / PIXMUL;
-  var rightPressed = false;
-  var leftPressed = false;
-  var upPressed = false;
-  var downPressed = false;
-  var initialSize = 10;
-  var frameCnt = 0;
-  var frameLimit = 10;
+
+  var CLR_BACKGROUND = '#666';
+  var CLR_FRAME = 'black';
+  var CLR_SNAKE = 'white';
+  var CLR_FOOD = 'yellow';
+
+  var rightPressed;
+  var leftPressed;
+  var upPressed;
+  var downPressed;
+  var initialSize;
+  var frameCnt;
+  var frameLimit;
   var snake;
   var food;
 
@@ -61,7 +67,7 @@
     }
 
     this.draw = function() {
-      drawPixel(this.x, this.y, 'black');
+      drawPixel(this.x, this.y, CLR_FOOD);
     }
 
     this.eaten = function() {
@@ -70,11 +76,33 @@
   }
 
   function Snake() {
-    this.direction = DOWN;
+    this.direction = getRandomInt(1, 2);
     this.active = true;
     this.pixels = [[5, 1]];
     this.alive = true;
     this.growBy = 0;
+
+    this.score = function() {
+      return (this.pixels.length - initialSize);
+    }
+
+    this.textDir = function() {
+      if (this.direction === UP) {
+        return 'UP';
+      }
+      if (this.direction === RIGHT) {
+        return 'RIGHT';
+      }
+      if (this.direction === DOWN) {
+        return 'DOWN';
+      }
+      if (this.direction === LEFT) {
+        return 'LEFT';
+      }
+    }
+
+    console.log('dir', this.direction, this.textDir());
+    // return;
 
     this.contains = function(x, y) {
       for (var i = 0; i < this.pixels.length; i++) {
@@ -142,21 +170,6 @@
       this.active = false;
     }
 
-    this.textDir = function() {
-      if (this.direction === UP) {
-        return 'UP';
-      }
-      if (this.direction === RIGHT) {
-        return 'RIGHT';
-      }
-      if (this.direction === DOWN) {
-        return 'DOWN';
-      }
-      if (this.direction === LEFT) {
-        return 'LEFT';
-      }
-    }
-
     this.moveRight = function() {
       this.direction = RIGHT;
       rightPressed = false;
@@ -181,7 +194,7 @@
       for (var i = 0; i < this.pixels.length; i++) {
         var sx = this.pixels[i][0];
         var sy = this.pixels[i][1];
-        drawPixel(sx, sy, 'green');
+        drawPixel(sx, sy, CLR_SNAKE);
       }
     }
 
@@ -189,8 +202,9 @@
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = 'black';
-    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = CLR_BACKGROUND;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (rightPressed) {
       snake.moveRight();
@@ -219,8 +233,11 @@
       frameLimit -= 0.5;
     }
 
+    ctx.fillStyle = CLR_FRAME;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
     if (!snake.alive) {
-      debug.innerHTML = 'GAME OVER';
+      debug.innerHTML = 'GAME OVER - YOUR SCORE: ' + snake.score();
       return;
     }
 
@@ -229,17 +246,24 @@
       frameCnt = 0;
     }
     frameCnt++;
-    debug.innerHTML = snake.textDir() + ' / ' + snake.pixels.length;
+    debug.innerHTML = 'SCORE: ' + snake.score();
     setTimeout(draw, 10);
   }
 
   function startGame() {
+    rightPressed = false;
+    leftPressed = false;
+    upPressed = false;
+    downPressed = false;
+    initialSize = 10;
+    frameCnt = 0;
+    frameLimit = 10;
+    food = null;
+
     snake = new Snake();
     draw();
   }
 
   btn.onclick = startGame;
-
   startGame();
-
 })()
