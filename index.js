@@ -18,6 +18,7 @@
   var leftPressed = false;
   var upPressed = false;
   var downPressed = false;
+  var initialSize = 10;
   var frameCnt = 0;
   var frameLimit = 10;
   var snake;
@@ -69,12 +70,11 @@
   }
 
   function Snake() {
-    this.size = 15;
     this.direction = DOWN;
     this.active = true;
     this.pixels = [[5, 1]];
     this.alive = true;
-    this.growBy = null;
+    this.growBy = 0;
 
     this.contains = function(x, y) {
       for (var i = 0; i < this.pixels.length; i++) {
@@ -120,24 +120,21 @@
       if (this.direction === LEFT) {
         this.addPixel(x - 1, y);
       }
-
-      if (this.growBy) {
-        var growBy = this.growBy;
-        this.growBy = null;
-        for (var i = 0; i < growBy; i++) {
-          this.addNewPixel();
-        }
-      }
     }
 
     this.move = function() {
       this.addNewPixel();
       if (this.alive) {
+        if (this.growBy > 0) {
+          this.growBy -= 1;
+          return;
+        }
+
         this.pixels.shift();
       }
     }
 
-    while (this.pixels.length < this.size) {
+    while (this.pixels.length < initialSize) {
       this.addNewPixel();
     }
 
@@ -219,7 +216,7 @@
     if (food.eaten()) {
       food = undefined;
       snake.grow(2);
-      frameLimit -= 1;
+      frameLimit -= 0.5;
     }
 
     if (!snake.alive) {
@@ -227,7 +224,7 @@
       return;
     }
 
-    if (frameCnt === frameLimit) {
+    if (frameCnt >= frameLimit) {
       snake.move();
       frameCnt = 0;
     }
@@ -237,7 +234,6 @@
   }
 
   function startGame() {
-    console.log('start game');
     snake = new Snake();
     draw();
   }
