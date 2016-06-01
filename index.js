@@ -56,7 +56,8 @@ function keyDownHandler(e) {
 document.addEventListener("keydown", keyDownHandler, false);
 
 function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 function Food(snake) {
@@ -286,6 +287,10 @@ function startGame() {
 }
 
 var AutoplayPlugin = function() {
+  function outcome(snake, food, x, y) {
+
+  }
+
   this.trigger = function(snake, food) {
     if (!food) {
       return;

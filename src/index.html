@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="libs/polyfill.js"></script>
+        <script src="libs/system.js"></script>
+        <script>
+        // set our baseURL reference path
+        System.config({
+            packages: {
+                js: {
+                    format: 'register',
+                    defaultExtension: 'js'
+                },
+            },
+            meta: {
+                'js/*': {format: 'cjs'}
+            }
+        });
+
+         System.import('js/app.js')
+                     .then(null, console.error.bind(console));
+        </script>
+    </head>
+    <body>
+      <canvas id="canvas" width="480" height="320"></canvas>
+      <pre id="banner">
+        Press 's' to start
+      </pre>
+      <button id="button">Start game</button>
+      <input type="checkbox" id="pluginToggle">
+      <label for="pluginToggle">Use AI plugin?</label>
+    </body>
+</html>
