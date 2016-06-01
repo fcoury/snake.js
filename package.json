@@ -4,23 +4,25 @@
   "description": "snake.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:babel-register"
   },
   "author": "Felipe Coury <felipe.coury@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "babel-polyfill": "^6.9.1",
+    "lodash": "^4.13.1",
     "systemjs": "^0.19.29"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-stage-1": "^6.5.0",
+    "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-concat": "^2.6.0",
     "gulp-print": "^2.0.1",
     "gulp-rollup": "^1.7.0",
-    "gulp-webserver": "^0.9.1",
-    "gulp-sourcemaps": "^1.6.0"
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-webserver": "^0.9.1"
   }
 }

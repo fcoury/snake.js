@@ -34,12 +34,15 @@ export default class SnakeGame {
     this.leftPressed = false;
     this.upPressed = false;
     this.downPressed = false;
-    this.initialSize = 10;
     this.frameCnt = 0;
     this.frameLimit = 10;
     this.food = null;
     this.paused = false;
     this.snake = new Snake(this);
+  }
+
+  registerPlugin(pluginCls) {
+    this.plugins.push(new pluginCls(this));
   }
 
   keyPressed(e) {
@@ -122,7 +125,7 @@ export default class SnakeGame {
 
   handlePlugins() {
     for (var i = 0; i < this.plugins.length; i++) {
-      this.plugins[i].trigger(this.snake, this.food);
+      this.plugins[i].run();
     }
   }
 

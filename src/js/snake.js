@@ -46,8 +46,12 @@ export default class Snake {
     this.growBy = by;
   }
 
+  isOutOfBounds(x, y) {
+    return (x < 0 || y < 0 || x >= MAX_X || y >= MAX_Y);
+  }
+
   addPixel(x, y) {
-    if (x < 0 || y < 0 || x >= MAX_X || y >= MAX_Y) {
+    if (this.isOutOfBounds(x, y)) {
       this.alive = false;
       return;
     }
@@ -94,6 +98,28 @@ export default class Snake {
 
   hit() {
     this.active = false;
+  }
+
+  performMove(direction) {
+    switch (direction) {
+      case RIGHT:
+        this.moveRight();
+        break;
+
+      case LEFT:
+        this.moveLeft();
+        break;
+
+      case DOWN:
+        this.moveDown();
+        break;
+
+      case UP:
+        this.moveUp();
+        break;
+    }
+
+    this.addNewPixel();
   }
 
   moveRight() {

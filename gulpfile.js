@@ -18,6 +18,7 @@ gulp.task('js', function() {
 
 gulp.task('libs', function(){
   return gulp.src([
+    'node_modules/lodash/lodash.js',
     'node_modules/systemjs/dist/system.js',
     'node_modules/babel-polyfill/dist/polyfill.js'])
     .pipe(print())
