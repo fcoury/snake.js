@@ -7,5 +7,5 @@ const game = new SnakeGame(canvas, banner);
 
 document.addEventListener('keydown', game.keyPressed.bind(game), false);
 
-btn.onclick = game.start;
+btn.onclick = game.start.bind(game);
 game.start();
