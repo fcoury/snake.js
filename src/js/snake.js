@@ -97,22 +97,30 @@ export default class Snake {
   }
 
   moveRight() {
-    this.direction = RIGHT;
+    if (this.direction != LEFT) {
+      this.direction = RIGHT;
+    }
     this.game.rightPressed = false;
   }
 
   moveLeft() {
-    this.direction = LEFT;
+    if (this.direction != RIGHT) {
+      this.direction = LEFT;
+    }
     this.game.leftPressed = false;
   }
 
   moveUp() {
-    this.direction = UP;
+    if (this.direction != DOWN) {
+      this.direction = UP;
+    }
     this.game.upPressed = false;
   }
 
   moveDown() {
-    this.direction = DOWN;
+    if (this.direction != UP) {
+      this.direction = DOWN;
+    }
     this.game.downPressed = false;
   }
 
