@@ -11,6 +11,7 @@ function pix(x, y) {
 
 export default class Snake {
   constructor(game) {
+    console.log(' *** NEW SNAKE')
     this.direction = DIRECTIONS[getRandomInt(1, 2)];
     this.active = true;
     this.pixels = [pix(5, 1)];
@@ -47,7 +48,7 @@ export default class Snake {
   }
 
   isOutOfBounds(x, y) {
-    return (x < 0 || y < 0 || x >= MAX_X || y >= MAX_Y);
+    return (x < 0 || y < 0 || x > MAX_X || y > MAX_Y);
   }
 
   addPixel(x, y) {

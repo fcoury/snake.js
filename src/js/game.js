@@ -25,6 +25,7 @@ export default class SnakeGame {
   plugins = [];
 
   constructor(canvas, banner) {
+    console.log(' *** NEW GAME')
     this.banner = banner;
     this.ctx = canvas.getContext('2d');
   }
@@ -43,6 +44,10 @@ export default class SnakeGame {
 
   registerPlugin(pluginCls) {
     this.plugins.push(new pluginCls(this));
+  }
+
+  getPlugins() {
+    return this.plugins;
   }
 
   keyPressed(e) {
@@ -88,6 +93,8 @@ export default class SnakeGame {
     if (!this.food) {
       this.snake.grow(2);
       this.food = new Food(this);
+      this.food.draw();
+      this.announceNewFood();
     }
   }
 
@@ -125,7 +132,13 @@ export default class SnakeGame {
 
   handlePlugins() {
     for (var i = 0; i < this.plugins.length; i++) {
-      this.plugins[i].run();
+      this.plugins[i].tick();
+    }
+  }
+
+  announceNewFood() {
+    for (var i = 0; i < this.plugins.length; i++) {
+      this.plugins[i].newFood();
     }
   }
 
@@ -165,6 +178,30 @@ export default class SnakeGame {
     this.updateScore();
 
     setTimeout(this.tick.bind(this), 10);
+  }
+
+  dump() {
+    const lines = [];
+    for (let y = 0; y <= MAX_Y; y++) {
+      let line = '';
+      for (let x = 0; x <= MAX_X; x++) {
+        if (this.snake.head().x == x && this.snake.head().y == y) {
+          line += 'H';
+          contine;
+        }
+        if (this.snake.contains(x, y)) {
+          line += 'S';
+          continue;
+        }
+        if (this.food.x == x && this.food.y == y) {
+          line += 'F';
+          contine;
+        }
+        line += '.';
+      }
+      lines.push(line);
+    }
+    lines.forEach(l => console.log(l));
   }
 
   start() {

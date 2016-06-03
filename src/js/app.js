@@ -7,6 +7,9 @@ const btn = document.getElementById('button');
 const game = new SnakeGame(canvas, banner);
 game.registerPlugin(Solver);
 
+const solver = document.getElementById('solver');
+game.getPlugins()[0].banner = solver;
+
 document.addEventListener('keydown', game.keyPressed.bind(game), false);
 
 btn.onclick = game.start.bind(game);

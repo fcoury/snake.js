@@ -11,6 +11,7 @@ export default class Food {
   setPosition() {
     while (true) {
       if (!this.snake.alive) {
+        console.log('snake died before food');
         break;
       }
 
@@ -27,7 +28,11 @@ export default class Food {
     this.game.drawPixel(this.x, this.y, CLR_FOOD);
   }
 
+  eatenBy(snake) {
+    return snake.contains(this.x, this.y);
+  }
+
   eaten() {
-    return this.snake.contains(this.x, this.y);
+    return this.eatenBy(this.snake);
   }
 }

@@ -1,141 +1,174 @@
 import _ from '../../libs/lodash.js';
 
-import { LEFT, RIGHT, UP, DOWN } from '../game';
+import { DIRECTIONS, LEFT, RIGHT, UP, DOWN } from '../game';
 import { MAX_X, MAX_Y } from '../game';
-import Pixel from '../pixel';
 
-const HIT = 'HIT';
-const OOB = 'OOB';
-const FOOD = 'FOOD';
+function dump(snake, food) {
+  const lines = [];
+  for (let y = 0; y <= MAX_Y; y++) {
+    let line = '';
+    for (let x = 0; x <= MAX_X; x++) {
+      if (snake.head().x == x && snake.head().y == y) {
+        line += 'H';
+        continue;
+      }
+      if (snake.contains(x, y)) {
+        line += 'S';
+        continue;
+      }
+      if (food.x == x && food.y == y) {
+        line += 'F';
+        continue;
+      }
+      line += '.';
+    }
+    lines.push(line);
+  }
+  lines.forEach((l, i) => console.log(i, l));
+}
+
+function suggestDirection(snake, food) {
+  const sx = snake.head().x;
+  const sy = snake.head().y;
+  const fx = food.x;
+  const fy = food.y;
+  const dx = fx - sx;
+  const dy = fy - sy;
+
+  let sugDir = null;
+
+  if (dx == 0) {
+    if (dy > 0) {
+      sugDir = DOWN;
+    }
+    else if (dy < 0) {
+      sugDir = UP;
+    }
+  }
+  else {
+    if (dx > 0) {
+      sugDir = RIGHT;
+    }
+    else {
+      sugDir = LEFT;
+    }
+  }
+
+  return sugDir;
+}
+
+let cnt = 0;
 
 class Move {
-  constructor(snake, food, direction) {
+  constructor(parent, snake, food) {
+    this.parent = parent;
     this.snake = snake;
     this.food = food;
-    this.direction = direction;
-    this.result = null;
+
+    this.direction = null;
+    this.child = null;
   }
 
-  isFood() {
-    return this.result === FOOD;
+  execute(level) {
+    if (this.banner) {
+      this.banner.innerHTML = `Executing: ${cnt++}`;
+    }
+
+    level = level || 1;
+
+    const suggestedDir = suggestDirection(this.snake, this.food);
+    const directions = _.cloneDeep(DIRECTIONS);
+
+    let success = false;
+
+    _.pull(directions, suggestedDir);
+    directions.unshift(suggestedDir);
+
+    for (let i = 0; i < directions.length; i++) {
+      const dir = directions[i];
+      const snake = _.cloneDeep(this.snake);
+      snake.direction = dir;
+      snake.move();
+
+      if (snake.alive) {
+        const eaten = this.food.eatenBy(snake);
+        this.direction = dir;
+        if (eaten) {
+          console.log('food', this.food.x, this.food.y);
+          console.log('snake', snake.head().x, snake.head().y);
+          return true;
+        }
+
+        const move = new Move(this, snake, this.food);
+        this.child = move;
+
+        if (this.child.execute(level + 1)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
+}
 
-  isPosition() {
-    return Pixel.prototype.isPrototypeOf(this.result);
-  }
-
-  execute() {
-    const sx = this.snake.head().x;
-    const sy = this.snake.head().y;
-    const fx = this.food.x;
-    const fy = this.food.y;
-
-    let px = sx;
-    let py = sy;
-
-    switch (this.direction) {
-      case LEFT:
-        px -= 1;
-        break;
-
-      case RIGHT:
-        px += 1;
-        break;
-
-      case UP:
-        py -= 1;
-        break;
-
-      case DOWN:
-        py += 1;
-        break;
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
     }
-
-    if (px < 1 || px > MAX_X || py < 1 || py > MAX_Y) {
-      this.result = OOB;
-      return;
-    }
-
-    if (px == fx && py == fy) {
-      this.result = FOOD;
-      return;
-    }
-
-    if (this.snake.contains(px, py)) {
-      this.result = HIT;
-      return;
-    }
-
-    this.result = new Pixel(px, py);
   }
 }
 
 export default class Solver {
   constructor(game) {
     this.game = game;
-    this.snake = game.snake;
-    this.food = game.food;
+  }
+
+  initialize() {
     this.moves = [];
-  }
+    this.snake = this.game.snake;
+    this.food = this.game.food;
 
-  suggestDirection(snake, food) {
-    const sx = snake.head().x;
-    const sy = snake.head().y;
-    const fx = food.x;
-    const fy = food.y;
-    const dx = fx - sx;
-    const dy = fy - sy;
-
-    let sugDir = null;
-
-    if (dx == 0) {
-      if (dy > 0) {
-        sugDir = DOWN;
-      }
-      else if (dy < 0) {
-        sugDir = UP;
-      }
-    }
-    else {
-      if (dx > 0) {
-        sugDir = RIGHT;
-      }
-      else {
-        sugDir = LEFT;
-      }
-    }
-
-    return sugDir;
-  }
-
-  calculateOutcome(snake, food) {
-    console.log('calculateOutcome', snake, food);
-    const direction = this.suggestDirection(snake, food);
-    const move = new Move(snake, food, direction);
+    const move = new Move(null, this.snake, this.food, null);
+    move.banner = this.banner;
     move.execute();
-    this.moves.push(move);
-    console.log('Calculating outcome for ', snake.head(), '-', move.result);
 
-    if (move.isPosition()) {
-      const newSnake = _.cloneDeep(snake);
-      newSnake.performMove(direction);
-      return this.calculateOutcome(newSnake, food);
+    let m = move;
+    let i = 0;
+    console.log('plan:');
+    while (true) {
+      i += 1;
+      console.log(i, m.direction)
+      this.moves.push(m);
+      if (!m.child) {
+        break;
+      }
+      m = m.child;
     }
-
-    if (move.isFood()) {
-      return true;
-    }
-
-    return false;
   }
 
-  run() {
-    console.log('game', this.game);
-    const snake = _.cloneDeep(this.game.snake);
-    const food = this.game.food;
-    console.log('Starting for', snake, food);
-    const outcome = this.calculateOutcome(snake, food);
-    console.log('movement', this.moves[0].direction);
-    this.game.snake.direction = this.moves[0].direction;
+  newFood() {
+    this.initialize();
+    console.log('food at', this.food.x, this.food.y)
+    const lastMove = this.moves[this.moves.length-1];
+    console.log('start:')
+    dump(this.moves[0].snake, this.moves[0].food);
+    console.log('final:')
+    dump(lastMove.snake, lastMove.food);
+    // sleep(2000);
+  }
+
+  tick() {
+    if (!this.snake && this.game.snake) {
+      this.initialize();
+    }
+
+    const move = this.moves.shift();
+    console.log('move', move);
+    if (move && move.direction) {
+      this.game.snake.direction = move.direction;
+    }
   }
 }
